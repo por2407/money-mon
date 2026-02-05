@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # --- 1. Database Service ---
+  moneymon-db:
+    image: postgres:15-alpine
+    container_name: moneymon_db_container
+    environment:
+      POSTGRES_DB: moneymon_db
+      POSTGRES_USER: moneymon_admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - moneymon_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - moneymon_network
+    restart: unless-stopped
+
+  # --- 2. PgAdmin Service ---
+  moneymon-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: moneymon_pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@moneymon.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - moneymon_pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - moneymon-db
+    networks:
+      - moneymon_network
+    restart: unless-stopped
+
+  # --- 3. Redis Service ---
+  moneymon-redis:
+    image: redis:alpine
+    container_name: moneymon_redis_container
+    ports:
+      - "6379:6379"
+    volumes:
+      - moneymon_redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - moneymon_network
+    restart: unless-stopped
+  
+  # --- 4. API Service (Go Backend) ---
+  moneymon-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: moneymon_api_container
+    ports:
+      - "8081:8080"
+    environment:
+      - DB_HOST=moneymon-db
+      - DB_USER=moneymon_admin
+      - DB_PASSWORD=password
+      - DB_NAME=moneymon_db
+      - DB_PORT=5432
+      - REDIS_HOST=moneymon-redis
+      - REDIS_PORT=6379
+    depends_on:
+      - moneymon-db
+      - moneymon-redis
+    volumes:
+      - ./backend:/app
+      - /app/tmp
+    networks:
+      - moneymon_network
+
+volumes:
+  moneymon_pg_data:
+  moneymon_pgadmin_data:
+  moneymon_redis_data:
+
+networks:
+  moneymon_network:
+    driver: bridge
