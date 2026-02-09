@@ -63,6 +63,7 @@ services:
       - DB_PORT=5432
       - REDIS_HOST=moneymon-redis
       - REDIS_PORT=6379
+      - JWT_SECRET=moneymon_super_secret_key_2024
     depends_on:
       - moneymon-db
       - moneymon-redis

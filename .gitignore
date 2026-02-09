@@ -1,0 +1,24 @@
+# Environment files (ห้าม push ขึ้น git!)
+.env
+*.env.local
+
+# IDE
+.idea/
+.vscode/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Air (Hot Reload)
+tmp/
+
+# OS
+.DS_Store
+Thumbs.db

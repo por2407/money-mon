@@ -1,0 +1,24 @@
+meta {
+  name: login
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8081/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "porpor",
+    "password" : "por123456789",
+    "name" : "por<3"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
